@@ -7,19 +7,22 @@ using namespace std;
 #define X "\033[33mX\033[0m"
 #define O "\033[32mO\033[0m"
 
+string COLOR_RESET = "\033[0m";
+string COLOR_BACKGROUND_GREEN = "\033[42m";
+string COLOR_BACKGROUND_RED = "\033[41m";
+string COLOR_BACKGROUND_BLUE = "\033[44m";
+
 bool isDigit(const string s) {
     return (s >= "1" && s <= "9");
 }
-bool Run = true;
 
-void Nocursortype()
+void hideCursor()
 {
     CONSOLE_CURSOR_INFO Info;
     Info.bVisible = FALSE;
     Info.dwSize = 20;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Info);
 }
-
 
 void SET_COLOR(int color)
 {
@@ -32,11 +35,6 @@ void SET_COLOR(int color)
         SetConsoleTextAttribute(hStdOut, wColor);
     }
 }
-
-string COLOR_RESET = "\033[0m";
-string COLOR_BACKGROUND_GREEN = "\033[42m";
-string COLOR_BACKGROUND_RED   = "\033[41m";
-string COLOR_BACKGROUND_BLUE  = "\033[44m";
 
 void print(string& colorCode, int width) {
     cout << colorCode;
@@ -85,17 +83,17 @@ public:
         return true;
     }
 
-    void placeMark(int position, string mark) {
-        if (position < 0 || position >= 9) {
+    void placeMark(int pos, string mark) {
+        if (pos < 0 || pos >= 9) {
             SET_COLOR(4);
-            throw out_of_range("Invalid position!");
+            throw out_of_range("Invalid pos!");
         }
-        if (!isDigit(board[position])) {
+        if (!isDigit(board[pos])) {
             SET_COLOR(4);
-            throw invalid_argument("Position already taken!");
+            throw invalid_argument("pos already taken!");
         }
         SET_COLOR(7);
-        board[position] = mark;
+        board[pos] = mark;
     }
 
     string Winner() const {
@@ -130,16 +128,14 @@ public:
     HumanPlayer(string m = " ") : Player(m) {}
 
     int Move(const Board& board) {
-        int position;
+        int pos;
         cout << "Enter your move (1-9): ";
-        cin >> position;
-        return position - 1;
+        cin >> pos;
+        return pos - 1;
     }
 
     string Identity() { return "You"; }
 };
-
-
 
 class ComputerPlayer : public Player {
 private:
@@ -154,10 +150,13 @@ public:
 
     void setLevel(int n) { level = n; }
 
+    bool Run = true;
+
     int Move(const Board& board) {
         if (playWith == "Computer") Sleep(1000);
         //hard level 
         if (level == 3) {
+            // check special case
             if (Run) {
                 Run = false;
                 if (isDigit(board.getCell(4))) return 4;
@@ -166,9 +165,11 @@ public:
                 if (isDigit(board.getCell(6))) return 6;
                 if (isDigit(board.getCell(8))) return 8;
             }
+
             for (int i = 0; i < 9; i += 3) {
                 if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i + 2) && isDigit(board.getCell(i+1))) return i + 1;
             }
+
             for (int i = 0; i < 3; ++i) {
                 if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i + 3) && isDigit(board.getCell(i+6))) return i + 6;
             }
@@ -197,7 +198,7 @@ public:
             if (!isDigit(board.getCell(2)) && board.getCell(2) == board.getCell(4) && isDigit(board.getCell(6))) return 6;
             if (!isDigit(board.getCell(6)) && board.getCell(6) == board.getCell(4) && isDigit(board.getCell(2))) return 2;
         }
-        // easy
+        // easy - random pos
         int tmp = rand() % 9;
         while (tmp < 0 || tmp >= 9 || !isDigit(board.getCell(tmp))) {
             tmp = rand() % 9;
@@ -205,7 +206,6 @@ public:
         return tmp;
     }
 };
-
 
 class Game {
 private:
@@ -217,6 +217,36 @@ public:
     Game(Player* p1 = NULL, Player* p2 = NULL) {
         player1 = p1;
         player2 = p2;
+    }
+
+    void mainMenu() {
+        SetConsoleTitle(L"Tic Tac Toe");
+        cout << "             Welcome to Tic-Tac-Toe\n";
+        cout << "-------------------------------------------------\n";
+        cout << "1. Play with Computer\n";
+        cout << "2. Human vs Human \n";
+        cout << "3. Computer vs Computer \n";
+        SET_COLOR(4);
+        cout << "4. Exit \n";
+        SET_COLOR(7);
+        cout << "-------------------------------------------------\n";
+        cout << "Your choice: ";
+    }
+
+    void subMenu() {
+        system("cls");
+        SetConsoleTitle(L"Tic Tac Toe");
+        cout << "             Welcome to Tic-Tac-Toe\n";
+        cout << "-------------------------------------------------\n";
+        SET_COLOR(2);
+        cout << "1. Easy\n";
+        SET_COLOR(6);
+        cout << "2. Normal\n";
+        SET_COLOR(12);
+        cout << "3. Hard\n";
+        SET_COLOR(7);
+        cout << "-------------------------------------------------\n";
+        cout << "Your choice: ";
     }
 
     void play() {
@@ -236,6 +266,7 @@ public:
                 cout << e.what() << endl;
                 continue;
             }
+
             string winner = board.Winner();
             if (winner != " ") {
                 system("cls");
@@ -251,7 +282,9 @@ public:
                     SET_COLOR(2);
                     cout << " wins!" << endl;
                 }
-
+                SET_COLOR(7);
+                system("pause");
+                cout << "Press any key to continue.....";
                 break;
             }
             else if (board.isFull()) {
@@ -259,83 +292,65 @@ public:
                 board.printBoard();
                 SET_COLOR(6);
                 cout << "It's a draw!" << endl;
+                SET_COLOR(7);
+                system("pause");
+                cout << "Press any key to continue.....";
                 break;
             }
             currentMark = (currentMark == X) ? O : X;
             currentPlayer = (currentPlayer == player1) ? player2 : player1;
         }
     }
+
+    void startGame() {
+
+        while (true) {
+            system("cls");
+            mainMenu();
+            int choice;
+            int level = 1;
+            Player* player1 = NULL;
+            Player* player2 = NULL;
+
+            cin >> choice;
+            if (choice == 1) {
+                subMenu();
+                cin >> level;
+                player1 = new HumanPlayer(X);
+                player2 = new ComputerPlayer(O, level);
+                system("cls");
+            }
+            else if (choice == 2) {
+                system("cls");
+                SetConsoleTitle(L"Tic Tac Toe");
+                player1 = new HumanPlayer(X);
+                player2 = new HumanPlayer(O);
+            }
+            else if (choice == 3) {
+                srand(time(NULL));
+                int randomNumber = rand() % 3 + 1;
+                int randomNumber2 = 1;
+                player1 = new ComputerPlayer(O, randomNumber, "Computer");
+                while (randomNumber2 == randomNumber) {
+                    randomNumber2 = rand() % 3 + 1;
+                }
+                player2 = new ComputerPlayer(O, randomNumber2, "Computer");
+
+                system("cls");
+                hideCursor();
+                SetConsoleTitle(L"Tic Tac Toe");              
+            }
+            else {
+                break;
+            }
+            Game game(player1, player2);
+            game.play();
+        }
+    }
 };
 
-void mainMenu() {
-    SetConsoleTitle(L"Tic Tac Toe");
-    cout << "             Welcome to Tic-Tac-Toe\n";
-    cout << "-------------------------------------------------\n";
-    cout << "1. Play with Computer\n";
-    cout << "2. Human vs Human \n";
-    cout << "3. Computer vs Computer \n";
-    SET_COLOR(4);
-    cout << "4. Exit \n";
-    SET_COLOR(7);
-    cout << "-------------------------------------------------\n";
-    cout << "Your choice: ";
-}
-
-void subMenu() {
-    system("cls");
-    SetConsoleTitle(L"Tic Tac Toe");
-    cout << "             Welcome to Tic-Tac-Toe\n";
-    cout << "-------------------------------------------------\n";
-    SET_COLOR(2);
-    cout << "1. Easy\n";
-    SET_COLOR(6);
-    cout << "2. Normal\n";
-    SET_COLOR(12);
-    cout << "3. Hard\n";
-    SET_COLOR(7);
-    cout << "-------------------------------------------------\n";
-    cout << "Your choice: ";
-}
-
 int main() {
-    mainMenu();
-    int choice;
-    int level = 1;
-    Player* player1 = new HumanPlayer();
-    Player* player2 = new HumanPlayer();
-    cin >> choice;
-    if (choice == 1) {
-        subMenu();
-        cin >> level;
-        player1 = new HumanPlayer(X);
-        player2 = new ComputerPlayer(O, level);
-        system("cls");
-    }
-    else if (choice == 2) {
-        system("cls");
-        SetConsoleTitle(L"Tic Tac Toe");
-        player1 = new HumanPlayer(X);
-        player2 = new HumanPlayer(O);
-    }
-    else if (choice == 3) {
-        srand(time(NULL));
-        int randomNumber = rand() % 3 + 1;
-        int randomNumber2 = 1;
-        player1 = new ComputerPlayer(O, randomNumber, "Computer");
-        while (randomNumber2 == randomNumber) {
-            randomNumber2 = rand() % 3 + 1;
-        }
-        player2 = new ComputerPlayer(O, randomNumber2, "Computer");
-        system("cls");
-        Nocursortype();
-        SetConsoleTitle(L"Tic Tac Toe");
-    }
-    else {
-        return 0;
-    }
-
-    Game game(player1, player2);
-    game.play();
-
+    Game *game = new Game;
+    game->startGame();
     return 0;
 }
