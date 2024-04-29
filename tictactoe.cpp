@@ -1,5 +1,7 @@
 #include <iostream>
 #include <vector>
+#include <cstdlib>
+#include <ctime>
 #include <Windows.h>
 #include <stdexcept>
 using namespace std;
@@ -12,14 +14,14 @@ string COLOR_BACKGROUND_GREEN = "\033[42m";
 string COLOR_BACKGROUND_RED = "\033[41m";
 string COLOR_BACKGROUND_BLUE = "\033[44m";
 
-bool isDigit(const string s) {
+bool emptyCell(const string s) {
     return (s >= "1" && s <= "9");
 }
 
-void hideCursor()
+void hideCursor(bool check = FALSE)
 {
     CONSOLE_CURSOR_INFO Info;
-    Info.bVisible = FALSE;
+    Info.bVisible = check;
     Info.dwSize = 20;
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &Info);
 }
@@ -78,7 +80,7 @@ public:
 
     bool isFull() const {
         for (string cell : board) {
-            if (isDigit(cell)) return false;
+            if (emptyCell(cell)) return false;
         }
         return true;
     }
@@ -86,11 +88,11 @@ public:
     void placeMark(int pos, string mark) {
         if (pos < 0 || pos >= 9) {
             SET_COLOR(4);
-            throw out_of_range("Invalid pos!");
+            throw out_of_range("Invalid position!");
         }
-        if (!isDigit(board[pos])) {
+        if (!emptyCell(board[pos])) {
             SET_COLOR(4);
-            throw invalid_argument("pos already taken!");
+            throw invalid_argument("Position already taken!");
         }
         SET_COLOR(7);
         board[pos] = mark;
@@ -99,15 +101,15 @@ public:
     string Winner() const {
         // check row
         for (int i = 0; i < 9; i += 3) {
-            if (!isDigit(board[i]) && board[i] == board[i + 1] && board[i] == board[i + 2]) return board[i];
+            if (!emptyCell(board[i]) && board[i] == board[i + 1] && board[i] == board[i + 2]) return board[i];
         }
         //check cell
         for (int i = 0; i < 3; ++i) {
-            if (!isDigit(board[i]) && board[i] == board[i + 3] && board[i] == board[i + 6]) return board[i];
+            if (!emptyCell(board[i]) && board[i] == board[i + 3] && board[i] == board[i + 6]) return board[i];
         }
         //check diagonal row 
-        if (!isDigit(board[0]) && board[0] == board[4] && board[0] == board[8]) return board[0];
-        if (!isDigit(board[2]) && board[2] == board[4] && board[2] == board[6]) return board[2];
+        if (!emptyCell(board[0]) && board[0] == board[4] && board[0] == board[8]) return board[0];
+        if (!emptyCell(board[2]) && board[2] == board[4] && board[2] == board[6]) return board[2];
 
         return " ";
     }
@@ -159,48 +161,48 @@ public:
             // check special case
             if (Run) {
                 Run = false;
-                if (isDigit(board.getCell(4))) return 4;
-                if (isDigit(board.getCell(0))) return 0;
-                if (isDigit(board.getCell(2))) return 2;
-                if (isDigit(board.getCell(6))) return 6;
-                if (isDigit(board.getCell(8))) return 8;
+                if (emptyCell(board.getCell(4))) return 4;
+                if (emptyCell(board.getCell(0))) return 0;
+                if (emptyCell(board.getCell(2))) return 2;
+                if (emptyCell(board.getCell(6))) return 6;
+                if (emptyCell(board.getCell(8))) return 8;
             }
-
+            // check row
             for (int i = 0; i < 9; i += 3) {
-                if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i + 2) && isDigit(board.getCell(i+1))) return i + 1;
+                if (!emptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 2) && emptyCell(board.getCell(i+1))) return i + 1;
             }
-
+            // check coll
             for (int i = 0; i < 3; ++i) {
-                if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i + 3) && isDigit(board.getCell(i+6))) return i + 6;
+                if (!emptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 6) && emptyCell(board.getCell(i+3))) return i + 3;
             }
         }
         // normal level
         if (level >= 2) {
             // check row
             for (int i = 0; i < 9; i += 3) {
-                if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i + 1) && isDigit(board.getCell(i+2))) return i + 2;
+                if (!emptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 1) && emptyCell(board.getCell(i+2))) return i + 2;
             }
             // check reverse row
             for (int i = 8; i >= 0; i -= 3) {
-                if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i - 1) && isDigit(board.getCell(i-2))) return i - 2;
+                if (!emptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i - 1) && emptyCell(board.getCell(i-2))) return i - 2;
             }
             // check collum
             for (int i = 0; i < 3; ++i) {
-                if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i + 3) && isDigit(board.getCell(i+6))) return i + 6;
+                if (!emptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 3) && emptyCell(board.getCell(i+6))) return i + 6;
             }
             //check reverse collum
             for (int i = 8; i >= 6; --i) {
-                if (!isDigit(board.getCell(i)) && board.getCell(i) == board.getCell(i - 3) && isDigit(board.getCell(i-6))) return i - 6;
+                if (!emptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i - 3) && emptyCell(board.getCell(i-6))) return i - 6;
             }
             //check diagonal row
-            if (!isDigit(board.getCell(0)) && board.getCell(0) == board.getCell(4) && isDigit(board.getCell(8))) return 8;
-            if (!isDigit(board.getCell(8)) && board.getCell(8) == board.getCell(4) && isDigit(board.getCell(0))) return 0;
-            if (!isDigit(board.getCell(2)) && board.getCell(2) == board.getCell(4) && isDigit(board.getCell(6))) return 6;
-            if (!isDigit(board.getCell(6)) && board.getCell(6) == board.getCell(4) && isDigit(board.getCell(2))) return 2;
+            if (!emptyCell(board.getCell(0)) && board.getCell(0) == board.getCell(4) && emptyCell(board.getCell(8))) return 8;
+            if (!emptyCell(board.getCell(8)) && board.getCell(8) == board.getCell(4) && emptyCell(board.getCell(0))) return 0;
+            if (!emptyCell(board.getCell(2)) && board.getCell(2) == board.getCell(4) && emptyCell(board.getCell(6))) return 6;
+            if (!emptyCell(board.getCell(6)) && board.getCell(6) == board.getCell(4) && emptyCell(board.getCell(2))) return 2;
         }
         // easy - random pos
         int tmp = rand() % 9;
-        while (tmp < 0 || tmp >= 9 || !isDigit(board.getCell(tmp))) {
+        while (tmp < 0 || tmp >= 9 || !emptyCell(board.getCell(tmp))) {
             tmp = rand() % 9;
         }
         return tmp;
@@ -255,7 +257,7 @@ public:
 
         while (true) {
             board.printBoard();
-            cout << "Your Turn: " << currentMark << "\n";
+            cout << "Your Turn: " << currentMark << "\n \n";
             int move = currentPlayer->Move(board);
             try {
                 system("cls");
@@ -280,7 +282,7 @@ public:
                     SET_COLOR(2);
                     cout << "Player " << currentMark;
                     SET_COLOR(2);
-                    cout << " wins!" << endl;
+                    cout << " wins! \n" << endl;
                 }
                 SET_COLOR(7);
                 system("pause");
@@ -291,7 +293,7 @@ public:
                 system("cls");
                 board.printBoard();
                 SET_COLOR(6);
-                cout << "It's a draw!" << endl;
+                cout << "It's a draw! \n" << endl;
                 SET_COLOR(7);
                 system("pause");
                 cout << "Press any key to continue.....";
@@ -301,6 +303,7 @@ public:
             currentPlayer = (currentPlayer == player1) ? player2 : player1;
         }
     }
+
 
     void startGame() {
 
@@ -328,13 +331,8 @@ public:
             }
             else if (choice == 3) {
                 srand(time(NULL));
-                int randomNumber = rand() % 3 + 1;
-                int randomNumber2 = 1;
-                player1 = new ComputerPlayer(O, randomNumber, "Computer");
-                while (randomNumber2 == randomNumber) {
-                    randomNumber2 = rand() % 3 + 1;
-                }
-                player2 = new ComputerPlayer(O, randomNumber2, "Computer");
+                player1 = new ComputerPlayer(O, rand() % 3 + 1, "Computer");
+                player2 = new ComputerPlayer(O, rand() % 3 + 1, "Computer");
 
                 system("cls");
                 hideCursor();
@@ -345,6 +343,7 @@ public:
             }
             Game game(player1, player2);
             game.play();
+            hideCursor(TRUE);
         }
     }
 };
