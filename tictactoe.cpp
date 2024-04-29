@@ -223,32 +223,34 @@ public:
 
     void mainMenu() {
         SetConsoleTitle(L"Tic Tac Toe");
-        cout << "             Welcome to Tic-Tac-Toe\n";
-        cout << "-------------------------------------------------\n";
-        cout << "1. Play with Computer\n";
-        cout << "2. Human vs Human \n";
-        cout << "3. Computer vs Computer \n";
+        cout << "+-----------------------------------------------+\n";
+        cout << "|            Welcome to Tic-Tac-Toe             |\n";
+        cout << "+-----------------------------------------------+\n";
+        cout << "|            1. Play with Computer              |\n";
+        cout << "|            2. Human vs Human                  |\n";
+        cout << "|            3. Computer vs Computer            |\n";
         SET_COLOR(4);
-        cout << "4. Exit \n";
+        cout << "|            4. Exit                            |\n";
         SET_COLOR(7);
-        cout << "-------------------------------------------------\n";
-        cout << "Your choice: ";
+        cout << "+-----------------------------------------------+\n";
+        cout << "Enter your choice: ";
     }
 
     void subMenu() {
         system("cls");
         SetConsoleTitle(L"Tic Tac Toe");
-        cout << "             Welcome to Tic-Tac-Toe\n";
-        cout << "-------------------------------------------------\n";
+        cout << "+-----------------------------------------------+\n";
+        cout << "|            Welcome to Tic-Tac-Toe             |\n";
+        cout << "+-----------------------------------------------+\n";
         SET_COLOR(2);
-        cout << "1. Easy\n";
+        cout << "|            1. Easy                            |\n";
         SET_COLOR(6);
-        cout << "2. Normal\n";
+        cout << "|            2. Normal                          |\n";
         SET_COLOR(12);
-        cout << "3. Hard\n";
+        cout << "|            3. Hard                            |\n";
         SET_COLOR(7);
-        cout << "-------------------------------------------------\n";
-        cout << "Your choice: ";
+        cout << "+-----------------------------------------------+\n";
+        cout << "Enter your choice: ";
     }
 
     void play() {
@@ -276,7 +278,7 @@ public:
                 board.printBoard();
                 if (player1->Identity() != player2->Identity()) {
                     SET_COLOR(2);
-                    cout << currentPlayer->Identity() << " wins!" << endl;
+                    cout << currentPlayer->Identity() << " wins! \n" << endl;
                 }
                 else {
                     SET_COLOR(2);
