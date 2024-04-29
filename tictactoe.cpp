@@ -48,10 +48,10 @@ private:
 
 public:
     Board() {
-        board = vector<string>(9) = {"1","2","3","4","5","6","7","8","9"};
+        board = vector<string>(9) = { "1","2","3","4","5","6","7","8","9" };
     }
 
-    ~Board() {} 
+    ~Board() {}
 
     void printBoard() const {
         print(COLOR_BACKGROUND_GREEN, 15);
@@ -104,7 +104,7 @@ public:
         for (int i = 0; i < 9; i += 3) {
             if (!isEmptyCell(board[i]) && board[i] == board[i + 1] && board[i] == board[i + 2]) return board[i];
         }
-
+        
         for (int i = 0; i < 3; ++i) {
             if (!isEmptyCell(board[i]) && board[i] == board[i + 3] && board[i] == board[i + 6]) return board[i];
         }
@@ -116,24 +116,24 @@ public:
     }
 };
 
-
 class Player {
 private:
-    string mark;
+    string mark;    
 public:
     Player(string _mark = " ") { mark = _mark; }
-    Player(const Player& p)    { mark = p.mark; }
+    Player(const Player& p) { mark = p.mark; }
+
     ~Player() {}
 
     virtual int Move(const Board& board) = 0;
     virtual string Identity() = 0;
 };
 
-class Human : public Player {
+class HumanPlayer : public Player {
 public:
-    Human(string m = " ") : Player(m) {}
+    HumanPlayer(string m = " ") : Player(m) {}
 
-    ~Human() {}
+    ~HumanPlayer() {}
 
     int Move(const Board& board) {
         int pos;
@@ -144,28 +144,28 @@ public:
     string Identity() { return "You"; }
 };
 
-class Computer : public Player {
+class ComputerPlayer : public Player {
 private:
-    int level;
-    string playWith;
+    int level;          
+    string playWith;    
 public:
-    Computer(string m = " ", int _level = 1, string _playWith = "Human") : Player(m) {
+    ComputerPlayer(string m = " ", int _level = 1, string _playWith = "HumanPlayer") : Player(m) {
         level = _level;
         playWith = _playWith;
     }
 
-    ~Computer() {}
+    ~ComputerPlayer() {}
 
-    void setLevel(int _level) { level = _level;}
-    int getLevel() { return level;         }
+    void setLevel(int _level) { level = _level; }
+    int getLevel() { return level; }
     void setPlayWith(string _playWith) { playWith = _playWith; }
-    string setPlayWith(){ return playWith;      }
+    string setPlayWith() { return playWith; }
 
     string Identity() { return "Computer"; }
 
     bool Run = true;
     int Move(const Board& board) {
-        if (playWith == "Computer") Sleep(1000);
+        if (playWith == "ComputerPlayer") Sleep(1000);
         if (level == 3) {
             if (Run) {
                 Run = false;
@@ -176,33 +176,52 @@ public:
                 if (board.isEmptyCell(board.getCell(8))) return 8;
             }
             for (int i = 0; i < 9; i += 3) {
-                if (!board.isEmptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 2) && board.isEmptyCell(board.getCell(i+1))) return i + 1;
+                if (!board.isEmptyCell(board.getCell(i))
+                    && board.getCell(i) == board.getCell(i + 2)
+                    && board.isEmptyCell(board.getCell(i + 1))) return i + 1;
             }
             for (int i = 0; i < 3; ++i) {
-                if (!board.isEmptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 6) && board.isEmptyCell(board.getCell(i+3))) return i + 3;
+                if (!board.isEmptyCell(board.getCell(i))
+                    && board.getCell(i) == board.getCell(i + 6)
+                    && board.isEmptyCell(board.getCell(i + 3))) return i + 3;
             }
         }
 
         if (level >= 2) {
-
             for (int i = 0; i < 9; i += 3) {
-                if (!board.isEmptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 1) && board.isEmptyCell(board.getCell(i+2))) return i + 2;
+                if (!board.isEmptyCell(board.getCell(i))
+                    && board.getCell(i) == board.getCell(i + 1)
+                    && board.isEmptyCell(board.getCell(i + 2))) return i + 2;
             }
             for (int i = 8; i >= 0; i -= 3) {
-                if (!board.isEmptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i - 1) && board.isEmptyCell(board.getCell(i-2))) return i - 2;
+                if (!board.isEmptyCell(board.getCell(i))
+                    && board.getCell(i) == board.getCell(i - 1)
+                    && board.isEmptyCell(board.getCell(i - 2))) return i - 2;
             }
 
             for (int i = 0; i < 3; ++i) {
-                if (!board.isEmptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i + 3) && board.isEmptyCell(board.getCell(i+6))) return i + 6;
+                if (!board.isEmptyCell(board.getCell(i))
+                    && board.getCell(i) == board.getCell(i + 3)
+                    && board.isEmptyCell(board.getCell(i + 6))) return i + 6;
             }
             for (int i = 8; i >= 6; --i) {
-                if (!board.isEmptyCell(board.getCell(i)) && board.getCell(i) == board.getCell(i - 3) && board.isEmptyCell(board.getCell(i-6))) return i - 6;
+                if (!board.isEmptyCell(board.getCell(i))
+                    && board.getCell(i) == board.getCell(i - 3)
+                    && board.isEmptyCell(board.getCell(i - 6))) return i - 6;
             }
 
-            if (!board.isEmptyCell(board.getCell(0)) && board.getCell(0) == board.getCell(4) && board.isEmptyCell(board.getCell(8))) return 8;
-            if (!board.isEmptyCell(board.getCell(8)) && board.getCell(8) == board.getCell(4) && board.isEmptyCell(board.getCell(0))) return 0;
-            if (!board.isEmptyCell(board.getCell(2)) && board.getCell(2) == board.getCell(4) && board.isEmptyCell(board.getCell(6))) return 6;
-            if (!board.isEmptyCell(board.getCell(6)) && board.getCell(6) == board.getCell(4) && board.isEmptyCell(board.getCell(2))) return 2;
+            if (!board.isEmptyCell(board.getCell(0))
+                && board.getCell(0) == board.getCell(4)
+                && board.isEmptyCell(board.getCell(8))) return 8;
+            if (!board.isEmptyCell(board.getCell(8))
+                && board.getCell(8) == board.getCell(4)
+                && board.isEmptyCell(board.getCell(0))) return 0;
+            if (!board.isEmptyCell(board.getCell(2))
+                && board.getCell(2) == board.getCell(4)
+                && board.isEmptyCell(board.getCell(6))) return 6;
+            if (!board.isEmptyCell(board.getCell(6))
+                && board.getCell(6) == board.getCell(4)
+                && board.isEmptyCell(board.getCell(2))) return 2;
         }
 
         int tmp = rand() % 9;
@@ -216,8 +235,8 @@ public:
 class Game {
 private:
     Board board;      
-    Player* player1;   
-    Player* player2;   
+    Player* player1;
+    Player* player2;  
 
 public:
     Game(Player* p1 = NULL, Player* p2 = NULL) {
@@ -325,24 +344,24 @@ public:
             if (choice == 1) {
                 subMenu();
                 cin >> level;
-                player1 = new Human(X);
-                player2 = new Computer(O, level);
+                player1 = new HumanPlayer(X);
+                player2 = new ComputerPlayer(O, level);
                 system("cls");
             }
             else if (choice == 2) {
                 system("cls");
                 SetConsoleTitle(L"Tic Tac Toe");
-                player1 = new Human(X);
-                player2 = new Human(O);
+                player1 = new HumanPlayer(X);
+                player2 = new HumanPlayer(O);
             }
             else if (choice == 3) {
                 srand(time(NULL));
-                player1 = new Computer(O, rand() % 3 + 1, "Computer");
-                player2 = new Computer(O, rand() % 3 + 1, "Computer");
+                player1 = new ComputerPlayer(O, rand() % 3 + 1, "ComputerPlayer");
+                player2 = new ComputerPlayer(O, rand() % 3 + 1, "ComputerPlayer");
 
                 system("cls");
                 hideCursor();
-                SetConsoleTitle(L"Tic Tac Toe");              
+                SetConsoleTitle(L"Tic Tac Toe");
             }
             else {
                 break;
@@ -355,7 +374,7 @@ public:
 };
 
 int main() {
-    Game *game = new Game;
+    Game* game = new Game;
     game->startGame();
     return 0;
 }
